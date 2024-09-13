@@ -4,7 +4,8 @@
 // Importing modules
 import React, { useState, useEffect } from "react";
 import "./App.css";
- 
+import WordleListFetcher from './WordleListFetcher.tsx';
+
 function App() {
     // usestate for setting a javascript
     // object for storing and using data
@@ -14,6 +15,8 @@ function App() {
         date: "",
         programming: "",
     });
+
+    const [words, setWords] = useState(null)
  
     // Using useEffect for single rendering
     useEffect(() => {
@@ -32,6 +35,15 @@ function App() {
         );
     }, []);
  
+ 
+    useEffect(() => {
+        fetch('https://raw.githubusercontent.com/tabatkins/wordle-list/main/words')
+          .then(response => response.json())
+          .then(data => setWords(data))
+          .catch(error => console.error(error));
+      }, []);
+ 
+    console.log(words)
     return (
         <div className="App">
             <header className="App-header">
@@ -41,6 +53,7 @@ function App() {
                 <p>{data.age}</p>
                 <p>{data.date}</p>
                 <p>{data.programming}</p>
+                <WordleListFetcher />
  
             </header>
         </div>
