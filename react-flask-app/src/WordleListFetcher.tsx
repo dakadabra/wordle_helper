@@ -1,3 +1,5 @@
+// Code taken from https://gist.github.com/iancward/afe148f28c5767d5ced7a275c12816a3
+
 import React, { useState, useEffect } from 'react';
 
 const WordleListFetcher = () => {
@@ -14,6 +16,7 @@ const WordleListFetcher = () => {
         }
         const text = await response.text();
         const wordList = text.split('\n').filter(word => word.trim() !== '');
+        wordList.sort();
         setWords(wordList);
       } catch (e) {
         setError('Failed to fetch the word list: ' + e.message);
@@ -30,8 +33,7 @@ const WordleListFetcher = () => {
 
   return (
     <div>
-      <h2>Wordle Word List</h2>
-      <p>Total words: {words.length}</p>
+      <p>Total possible words: {words.length}</p>
       <ul className="max-h-60 overflow-y-auto">
         {words.slice(0, 100).map((word, index) => (
           <li key={index}>{word}</li>
