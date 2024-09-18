@@ -13,20 +13,37 @@ const SquareColors = {
 };
 
 function Square({ value, onSquareClick, squareColor }) {
-    const [letter, setLetter] = useState(value);
+    const [letter, setLetter] = useState(value)
+    const [color, setColor] = useState(squareColor)
+
+    const handleClick = () => {
+        // Only allow colour to change if there's a letter there
+        if (letter != "") {
+            // Users can update the value of the square based on what they see on the app
+            if (color == SquareColors.GREEN) {
+                setColor(SquareColors.GREY)
+            } else if (color == SquareColors.GREY) {
+                setColor(SquareColors.YELLOW)
+            } else {
+                setColor(SquareColors.GREEN)
+            }
+            // If there is a letter there, update the list possible words with the new info
+            onSquareClick(color)
+        }
+    }
     
     const handleChange = (event) => {
         const newLetter = event.target.value
-        const lastChar = newLetter.slice(-1).toUpperCase();
+        const lastChar = newLetter == "" ? "" : newLetter.slice(-1).toUpperCase();
     
         // Check if the last character is a letter
-        if (lastChar.match(/[A-Z]/i)) {
+        if (lastChar == "" || lastChar.match(/[A-Z]/i)) {
           setLetter(lastChar);
         }
     };
 
     return (
-      <button className={"square " + squareColor} onClick={onSquareClick}>
+      <button className={"square " + color} onClick={handleClick}>
         <input className="letter" type="text" value={letter} onChange={handleChange} />
       </button>
     );
@@ -45,6 +62,7 @@ function Board({ squares }) {
                 squareColor={SquareColors.GREY}
               />
             ))}
+            <button>Enter</button> {/*TODO: Add key bindings here too*/}
           </div>
         ))}
       </>
@@ -53,14 +71,7 @@ function Board({ squares }) {
 
 function App() {
     const [words, setWords] = useState(null)
-    const [squares, setSquares] = useState(Array(30).fill(null))
- 
-    useEffect(() => {
-        fetch('https://raw.githubusercontent.com/tabatkins/wordle-list/main/words')
-          .then(response => response.json())
-          .then(data => setWords(data))
-          .catch(error => console.error(error));
-      }, []);
+    const [squares, setSquares] = useState(Array(30).fill(""))
  
     return (
         <div className="App">
