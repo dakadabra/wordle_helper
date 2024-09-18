@@ -13,9 +13,21 @@ const SquareColors = {
 };
 
 function Square({ value, onSquareClick, squareColor }) {
+    const [letter, setLetter] = useState(value);
+    
+    const handleChange = (event) => {
+        const newLetter = event.target.value
+        const lastChar = newLetter.slice(-1).toUpperCase();
+    
+        // Check if the last character is a letter
+        if (lastChar.match(/[A-Z]/i)) {
+          setLetter(lastChar);
+        }
+    };
+
     return (
-      <button className={"square "+squareColor} onClick={onSquareClick}>
-        {value}
+      <button className={"square " + squareColor} onClick={onSquareClick}>
+        <input className="letter" type="text" value={letter} onChange={handleChange} />
       </button>
     );
 }

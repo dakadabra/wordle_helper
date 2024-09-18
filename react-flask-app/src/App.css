@@ -43,6 +43,14 @@
   width: 75px;
 }
 
+.letter {
+  background: transparent;
+  border-width: 0;
+  font-size: 54px;
+  text-align: center;
+  width: 65px;
+}
+
 .square.greeg {
   background: rgb(25, 193, 39);
 }
