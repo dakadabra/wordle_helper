@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 
+const MAX_COLUMNS = 7;
+const MAX_ROWS = 50;
+
 const WordleListFetcher = ({yellows, greens}) => {
   const [words, setWords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
 
   function filterWords(wordList) {
@@ -41,7 +44,7 @@ const WordleListFetcher = ({yellows, greens}) => {
     };
 
     fetchWords();
-  }, []);
+  }, [yellows, greens]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -49,12 +52,18 @@ const WordleListFetcher = ({yellows, greens}) => {
   return (
     <div>
       <p>Total possible words: {words.length}</p>
-      <ul className="max-h-60 overflow-y-auto">
-        {words.slice(0, 100).map((word, index) => (
-          <li key={index}>{word}</li>
+      <div className="word-columns" style={{ display: 'flex', flexDirection: 'row' }}>
+        {Array.from({ length: MAX_COLUMNS }, (_, col) => (
+          <ul key={col} className="max-h-60 overflow-y-auto" style={{ flex: 1, margin: '0 10px' }}>
+            {words.slice(0, MAX_ROWS * MAX_COLUMNS)
+              .filter((_, index) => index % MAX_COLUMNS === col) // Distribute words across columns
+              .map((word, index) => (
+                <li key={index}>{word}</li>
+              ))}
+          </ul>
         ))}
-      </ul>
-      {words.length > 100 && <p>... and {words.length - 100} more words</p>}
+      </div>
+      {words.length > (MAX_COLUMNS * MAX_ROWS) && <p>... and {words.length - MAX_COLUMNS * MAX_ROWS} more words</p>}
     </div>
   );
 };
