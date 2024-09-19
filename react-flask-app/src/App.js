@@ -18,11 +18,11 @@ function Square({ value, onSquareClick, squareColor }) {
 
     const handleClick = () => {
         // Only allow colour to change if there's a letter there
-        if (letter != "") {
+        if (letter !== "") {
             // Users can update the value of the square based on what they see on the app
-            if (color == SquareColors.GREEN) {
+            if (color === SquareColors.GREEN) {
                 setColor(SquareColors.GREY)
-            } else if (color == SquareColors.GREY) {
+            } else if (color === SquareColors.GREY) {
                 setColor(SquareColors.YELLOW)
             } else {
                 setColor(SquareColors.GREEN)
@@ -34,10 +34,10 @@ function Square({ value, onSquareClick, squareColor }) {
     
     const handleChange = (event) => {
         const newLetter = event.target.value
-        const lastChar = newLetter == "" ? "" : newLetter.slice(-1).toUpperCase();
+        const lastChar = newLetter === "" ? "" : newLetter.slice(-1).toUpperCase();
     
         // Check if the last character is a letter
-        if (lastChar == "" || lastChar.match(/[A-Z]/i)) {
+        if (lastChar === "" || lastChar.match(/[A-Z]/i)) {
           setLetter(lastChar);
         }
     };
@@ -72,13 +72,21 @@ function Board({ squares }) {
 function App() {
     const [words, setWords] = useState(null)
     const [squares, setSquares] = useState(Array(30).fill(""))
+    const [yellowSquares, setYellowSquares] = useState(Array(5).fill(""))
+    const [greenSquares, setGreenSquares] = useState(Array(5).fill(""))
  
+    // TODO: Replace this so users set there arrays
+    useEffect(() => {
+        setGreenSquares(["g", "", "", "", ""])
+        setYellowSquares(["a", "e", "", "d", ""])
+    }, []);
+
     return (
         <div className="App">
             <header className="App-header">
                 <h1>Wordle Helper</h1>
                 <Board squares={squares}/>
-                <WordleListFetcher />
+                <WordleListFetcher yellows={yellowSquares} greens={greenSquares}/>
             </header>
         </div>
     );

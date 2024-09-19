@@ -2,10 +2,25 @@
 
 import React, { useState, useEffect } from 'react';
 
-const WordleListFetcher = () => {
-  const [words, setWords] = useState([]);
+const WordleListFetcher = ({yellows, greens}) => {
+  const [words, setWords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+
+  function filterWords(wordList) {
+    let filteredList = wordList;
+    for (let i = 0; i < 5; i++) {
+      if (greens[i] !== "") {
+        filteredList = filteredList.filter(word => word[i] === greens[i]);
+      }
+      if (yellows[i] !== "") {
+        filteredList = filteredList.filter(word => word[i] !== yellows[i] &&
+                                           word.includes(yellows[i]));
+      }
+    }
+    setWords(filteredList);
+  }
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -17,7 +32,7 @@ const WordleListFetcher = () => {
         const text = await response.text();
         const wordList = text.split('\n').filter(word => word.trim() !== '');
         wordList.sort();
-        setWords(wordList);
+        filterWords(wordList);
       } catch (e) {
         setError('Failed to fetch the word list: ' + e.message);
       } finally {
