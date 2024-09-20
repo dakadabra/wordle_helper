@@ -1,4 +1,9 @@
 {
   "name": "wordle_helper",
-  "packageManager": "yarn@4.4.1"
+  "packageManager": "yarn@4.4.1",
+  "homepage": "https://dakadabra.github.io/wordle_helper/app",
+  "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  }
 }
