@@ -12,7 +12,7 @@ const SquareColors = {
     GREY: 'grey',
 };
 
-function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, autoFocus }) {
+function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, autoFocus, disabled }) {
     const [letter, setLetter] = useState(value)
     const [color, setColor] = useState(squareColor)
     const inputRef = useRef(null)
@@ -55,7 +55,10 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, auto
               nextInput.focus();
             } else {
               const enterButton = inputRef.current.parentNode.parentNode.querySelector('button:last-child');
-              enterButton.focus();
+              // Wait for the enter button to be enabled before focusing
+              setTimeout(() => {
+                enterButton.focus();
+              }, 100);
             }
           }
         }
@@ -71,7 +74,7 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, auto
     };
 
     return (
-      <button className={"square " + color} onClick={handleClick}>
+      <button className={"square " + color} onClick={handleClick} disabled={disabled}>
         <input 
           ref={inputRef} 
           className="letter" 
@@ -79,6 +82,7 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, auto
           value={letter} 
           onChange={handleChange}
           onKeyDown={handleKeyDown}
+          disabled={disabled}
         />
       </button>
     );
@@ -86,15 +90,36 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, auto
 
 function Board({ squares, updateSquareInfo, onEnter }) {
   const enterButtonRefs = useRef([]);
+  const [currentRow, setCurrentRow] = useState(0);
+  const [rowsFilled, setRowsFilled] = useState(Array(6).fill(false));
 
   const handleEnter = (rowIndex) => {
-    if (rowIndex < 5) {
-      const nextRow = enterButtonRefs.current[rowIndex].parentNode.nextSibling;
-      const firstInput = nextRow.querySelector('input');
-      firstInput.focus();
-    }
     onEnter(rowIndex);
+    setCurrentRow(rowIndex + 1);
+    
+    // Use setTimeout to ensure the next row is enabled before focusing
+    setTimeout(() => {
+      if (rowIndex < 5) {
+        const nextRow = enterButtonRefs.current[rowIndex].parentNode.nextSibling;
+        const firstInput = nextRow.querySelector('input');
+        firstInput.focus();
+      }
+    }, 0);
   }
+
+  const checkRowFilled = (rowIndex) => {
+    const row = squares.slice(rowIndex * 5, (rowIndex + 1) * 5);
+    const isFilled = row.every(square => square.letter !== "");
+    setRowsFilled(prev => {
+      const newRowsFilled = [...prev];
+      newRowsFilled[rowIndex] = isFilled;
+      return newRowsFilled;
+    });
+  }
+
+  useEffect(() => {
+    checkRowFilled(currentRow);
+  }, [squares, currentRow]);
 
   return (
     <>
@@ -103,17 +128,22 @@ function Board({ squares, updateSquareInfo, onEnter }) {
           {[0, 1, 2, 3, 4].map((j) => (
             <Square
               key={i * 5 + j}
-              value={squares[i * 5 + j]}
-              squareColor={SquareColors.GREY}
+              value={squares[i * 5 + j].letter}
+              squareColor={squares[i * 5 + j].color}
               rowIndex={i}
               colIndex={j}
-              updateSquareInfo={updateSquareInfo}
+              updateSquareInfo={(rowIndex, colIndex, letter, color) => {
+                updateSquareInfo(rowIndex, colIndex, letter, color);
+                checkRowFilled(rowIndex);
+              }}
               autoFocus={i === 0 && j === 0}
+              disabled={i !== currentRow}
             />
           ))}
           <button 
             ref={el => enterButtonRefs.current[i] = el} 
             onClick={() => handleEnter(i)}
+            disabled={i !== currentRow || !rowsFilled[i]}
           >
             Enter
           </button>
@@ -124,8 +154,7 @@ function Board({ squares, updateSquareInfo, onEnter }) {
 }
 
 function App() {
-    const [squares, setSquares] = useState(Array(30).fill(""))
-    const [tempSquareInfo, setTempSquareInfo] = useState(Array(6).fill().map(() => Array(5).fill({ letter: "", color: SquareColors.GREY })))
+    const [squares, setSquares] = useState(Array(30).fill().map(() => ({ letter: "", color: SquareColors.GREY })))
     const [yellowSquares, setYellowSquares] = useState(Array(5).fill().map(() => []))
     const [greenSquares, setGreenSquares] = useState(Array(5).fill(""))
     const [greySquares, setGreySquares] = useState(Array(5).fill().map(() => []))
@@ -133,16 +162,16 @@ function App() {
     useEffect(() => {
     }, [greenSquares, yellowSquares, greySquares]);
 
-    // Updates the temporary square info with the letter and color of the square
+    // Updates the square info with the letter and color of the square
     const updateSquareInfo = (rowIndex, colIndex, letter, color) => {
-        const newTempSquareInfo = [...tempSquareInfo];
-        newTempSquareInfo[rowIndex][colIndex] = { letter, color };
-        setTempSquareInfo(newTempSquareInfo);
+        const newSquares = [...squares];
+        newSquares[rowIndex * 5 + colIndex] = { letter, color };
+        setSquares(newSquares);
     };
 
-    // Updates the green, yellow, and grey squares with the letter and color of the square ones the row is entered
+    // Updates the green, yellow, and grey squares with the letter and color of the square once the row is entered
     const handleEnter = (rowIndex) => {
-        const rowInfo = tempSquareInfo[rowIndex];
+        const rowInfo = squares.slice(rowIndex * 5, (rowIndex + 1) * 5);
         const newGreenSquares = [...greenSquares];
         const newYellowSquares = [...yellowSquares];
         const newGreySquares = [...greySquares];
