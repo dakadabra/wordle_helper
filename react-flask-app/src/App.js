@@ -96,6 +96,14 @@ function App() {
         rowInfo.forEach(({ letter, color }, colIndex) => {
             if (color === SquareColors.GREEN) {
                 newGreenSquares[colIndex] = letter; // Add letter to green squares in the correct position
+                if (greenSquares[colIndex] !== letter) { // new green square, so remove one occurence of the letter from yellows
+                  newYellowSquares.some((yellowLetters, i) => {
+                    if (yellowLetters.includes(letter)) {
+                        yellowLetters.splice(yellowLetters.indexOf(letter), 1);
+                        return true;
+                    }
+                 });
+              }
             } else if (color === SquareColors.YELLOW) {
               if (!newYellowSquares[colIndex].includes(letter)) { // If letter is not already in the yellow squares at that position
                 newYellowSquares[colIndex].push(letter); // Add letter to yellow squares in that position
