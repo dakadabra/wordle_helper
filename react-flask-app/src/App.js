@@ -144,6 +144,7 @@ function Board({ squares, updateSquareInfo, onEnter }) {
             ref={el => enterButtonRefs.current[i] = el} 
             onClick={() => handleEnter(i)}
             disabled={i !== currentRow || !rowsFilled[i]}
+            className="enter button"
           >
             Enter
           </button>
