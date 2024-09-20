@@ -2,7 +2,7 @@
 // Filename - App.js
  
 // Importing modules
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import WordleListFetcher from './WordleListFetcher.tsx';
 
@@ -12,10 +12,19 @@ const SquareColors = {
     GREY: 'grey',
 };
 
-function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo }) {
+function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, autoFocus }) {
     const [letter, setLetter] = useState(value)
     const [color, setColor] = useState(squareColor)
+    const inputRef = useRef(null)
 
+    // Focus on the square when we open the app if it is the first square in the board
+    useEffect(() => {
+        if (autoFocus) {
+            inputRef.current.focus();
+        }
+    }, [autoFocus]);
+
+    // If the square is clicked, update the square color
     const handleClick = () => {
         if (letter !== "") {
             let newColor;
@@ -38,36 +47,80 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo }) {
         if (lastChar === "" || lastChar.match(/[A-Z]/i)) {
           setLetter(lastChar);
           updateSquareInfo(rowIndex, colIndex, lastChar.toLowerCase(), color);
+          
+          if (lastChar !== "") {
+           // Focus next input or Enter button
+            if (colIndex < 4) {
+              const nextInput = inputRef.current.parentNode.nextSibling.querySelector('input');
+              nextInput.focus();
+            } else {
+              const enterButton = inputRef.current.parentNode.parentNode.querySelector('button:last-child');
+              enterButton.focus();
+            }
+          }
+        }
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Backspace' && letter === '') {
+            if (colIndex > 0) {
+                const prevInput = inputRef.current.parentNode.previousSibling.querySelector('input');
+                prevInput.focus();
+            }
         }
     };
 
     return (
       <button className={"square " + color} onClick={handleClick}>
-        <input className="letter" type="text" value={letter} onChange={handleChange} />
+        <input 
+          ref={inputRef} 
+          className="letter" 
+          type="text" 
+          value={letter} 
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+        />
       </button>
     );
 }
 
 function Board({ squares, updateSquareInfo, onEnter }) {
-    return (
-      <>
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <div className="board-row" key={i}>
-            {[0, 1, 2, 3, 4].map((j) => (
-              <Square
-                key={i * 5 + j}
-                value={squares[i * 5 + j]}
-                squareColor={SquareColors.GREY}
-                rowIndex={i}
-                colIndex={j}
-                updateSquareInfo={updateSquareInfo}
-              />
-            ))}
-            <button onClick={() => onEnter(i)}>Enter</button>
-          </div>
-        ))}
-      </>
-    );
+  const enterButtonRefs = useRef([]);
+
+  const handleEnter = (rowIndex) => {
+    if (rowIndex < 5) {
+      const nextRow = enterButtonRefs.current[rowIndex].parentNode.nextSibling;
+      const firstInput = nextRow.querySelector('input');
+      firstInput.focus();
+    }
+    onEnter(rowIndex);
+  }
+
+  return (
+    <>
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <div className="board-row" key={i}>
+          {[0, 1, 2, 3, 4].map((j) => (
+            <Square
+              key={i * 5 + j}
+              value={squares[i * 5 + j]}
+              squareColor={SquareColors.GREY}
+              rowIndex={i}
+              colIndex={j}
+              updateSquareInfo={updateSquareInfo}
+              autoFocus={i === 0 && j === 0}
+            />
+          ))}
+          <button 
+            ref={el => enterButtonRefs.current[i] = el} 
+            onClick={() => handleEnter(i)}
+          >
+            Enter
+          </button>
+        </div>
+      ))}
+    </>
+  );
 }
 
 function App() {
