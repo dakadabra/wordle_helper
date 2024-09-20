@@ -5,21 +5,38 @@ import React, { useState, useEffect } from 'react';
 const MAX_COLUMNS = 7;
 const MAX_ROWS = 50;
 
-const WordleListFetcher = ({yellows, greens}) => {
+const WordleListFetcher = ({greys, yellows, greens}) => {
   const [words, setWords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
-  function filterWords(wordList) {
+  function filterWords(wordList: string[]) {
     let filteredList = wordList;
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) { // for each letter in the word
       if (greens[i] !== "") {
         filteredList = filteredList.filter(word => word[i] === greens[i]);
       }
       if (yellows[i] !== "") {
-        filteredList = filteredList.filter(word => word[i] !== yellows[i] &&
-                                           word.includes(yellows[i]));
+        for (let j = 0; j < yellows[i].length; j++) {
+          filteredList = filteredList.filter(word => {
+            const yellowLetter = yellows[i][j];
+            const yellowCount = yellows.flat().filter(l => l === yellowLetter).length;
+            const greenCount = greens.filter(l => l === yellowLetter).length;
+            const wordCount = word.split('').filter(l => l === yellowLetter).length;
+
+            return word[i] !== yellowLetter && // Ensure the yellow letter is not at this position
+                   wordCount >= yellowCount + greenCount; // Ensure the word has at least as many occurrences as yellows and greens combined
+          });
+        }
+      }
+      if (greys[i] !== "") {
+        for (let j = 0; j < greys[i].length; j++) {
+          // remove words that include the grey letter and don't already have the letter in the correct position
+          filteredList = filteredList.filter(word => (word[i] !== greys[i][j]) &&
+                                                      (!word.includes(greys[i][j]) ||
+                                                      greens.includes(greys[i][j]) ||
+                                                      yellows.some(col => col.includes(greys[i][j]))));
+        }
       }
     }
     setWords(filteredList);
@@ -44,7 +61,7 @@ const WordleListFetcher = ({yellows, greens}) => {
     };
 
     fetchWords();
-  }, [yellows, greens]);
+  }, [greys, yellows, greens]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;

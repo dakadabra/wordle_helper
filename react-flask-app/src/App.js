@@ -9,26 +9,25 @@ import WordleListFetcher from './WordleListFetcher.tsx';
 const SquareColors = {
     GREEN: 'green',
     YELLOW: 'yellow',
-    GREY: 'grey'
+    GREY: 'grey',
 };
 
-function Square({ value, onSquareClick, squareColor }) {
+function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo }) {
     const [letter, setLetter] = useState(value)
     const [color, setColor] = useState(squareColor)
 
     const handleClick = () => {
-        // Only allow colour to change if there's a letter there
         if (letter !== "") {
-            // Users can update the value of the square based on what they see on the app
+            let newColor;
             if (color === SquareColors.GREEN) {
-                setColor(SquareColors.GREY)
-            } else if (color === SquareColors.GREY) {
-                setColor(SquareColors.YELLOW)
+                newColor = SquareColors.GREY;
+            } else if (color === SquareColors.YELLOW) {
+                newColor = SquareColors.GREEN;
             } else {
-                setColor(SquareColors.GREEN)
+                newColor = SquareColors.YELLOW;
             }
-            // If there is a letter there, update the list possible words with the new info
-            onSquareClick(color)
+            setColor(newColor);
+            updateSquareInfo(rowIndex, colIndex, letter.toLowerCase(), newColor);
         }
     }
     
@@ -36,9 +35,9 @@ function Square({ value, onSquareClick, squareColor }) {
         const newLetter = event.target.value
         const lastChar = newLetter === "" ? "" : newLetter.slice(-1).toUpperCase();
     
-        // Check if the last character is a letter
         if (lastChar === "" || lastChar.match(/[A-Z]/i)) {
           setLetter(lastChar);
+          updateSquareInfo(rowIndex, colIndex, lastChar.toLowerCase(), color);
         }
     };
 
@@ -49,44 +48,84 @@ function Square({ value, onSquareClick, squareColor }) {
     );
 }
 
-function Board({ squares }) {
-  
+function Board({ squares, updateSquareInfo, onEnter }) {
     return (
       <>
         {[0, 1, 2, 3, 4, 5].map((i) => (
-          <div className="board-row">
+          <div className="board-row" key={i}>
             {[0, 1, 2, 3, 4].map((j) => (
               <Square
-                value={squares[i * 6 + j]}
-                onSquareClick={() => {}}
+                key={i * 5 + j}
+                value={squares[i * 5 + j]}
                 squareColor={SquareColors.GREY}
+                rowIndex={i}
+                colIndex={j}
+                updateSquareInfo={updateSquareInfo}
               />
             ))}
-            <button>Enter</button> {/*TODO: Add key bindings here too*/}
+            <button onClick={() => onEnter(i)}>Enter</button>
           </div>
         ))}
       </>
     );
-  }
+}
 
 function App() {
-    const [words, setWords] = useState(null)
     const [squares, setSquares] = useState(Array(30).fill(""))
-    const [yellowSquares, setYellowSquares] = useState(Array(5).fill(""))
+    const [tempSquareInfo, setTempSquareInfo] = useState(Array(6).fill().map(() => Array(5).fill({ letter: "", color: SquareColors.GREY })))
+    const [yellowSquares, setYellowSquares] = useState(Array(5).fill().map(() => []))
     const [greenSquares, setGreenSquares] = useState(Array(5).fill(""))
- 
-    // TODO: Replace this so users set there arrays
+    const [greySquares, setGreySquares] = useState(Array(5).fill().map(() => []))
+
     useEffect(() => {
-        setGreenSquares(["g", "", "", "", ""])
-        setYellowSquares(["a", "e", "", "d", ""])
-    }, []);
+    }, [greenSquares, yellowSquares, greySquares]);
+
+    // Updates the temporary square info with the letter and color of the square
+    const updateSquareInfo = (rowIndex, colIndex, letter, color) => {
+        const newTempSquareInfo = [...tempSquareInfo];
+        newTempSquareInfo[rowIndex][colIndex] = { letter, color };
+        setTempSquareInfo(newTempSquareInfo);
+    };
+
+    // Updates the green, yellow, and grey squares with the letter and color of the square ones the row is entered
+    const handleEnter = (rowIndex) => {
+        const rowInfo = tempSquareInfo[rowIndex];
+        const newGreenSquares = [...greenSquares];
+        const newYellowSquares = [...yellowSquares];
+        const newGreySquares = [...greySquares];
+        rowInfo.forEach(({ letter, color }, colIndex) => {
+            if (color === SquareColors.GREEN) {
+                newGreenSquares[colIndex] = letter; // Add letter to green squares in the correct position
+            } else if (color === SquareColors.YELLOW) {
+              if (!newYellowSquares[colIndex].includes(letter)) { // If letter is not already in the yellow squares at that position
+                newYellowSquares[colIndex].push(letter); // Add letter to yellow squares in that position
+              }
+            } else if (color === SquareColors.GREY) {
+              if (!newGreySquares[colIndex].includes(letter)) { // If letter is not already in the grey squares at that position
+                newGreySquares[colIndex].push(letter); // Add letter to grey squares in that position
+              }
+            }
+        });
+
+        setGreenSquares(newGreenSquares);
+        setYellowSquares(newYellowSquares);
+        setGreySquares(newGreySquares);
+    };
 
     return (
         <div className="App">
             <header className="App-header">
                 <h1>Wordle Helper</h1>
-                <Board squares={squares}/>
-                <WordleListFetcher yellows={yellowSquares} greens={greenSquares}/>
+                <Board 
+                    squares={squares} 
+                    updateSquareInfo={updateSquareInfo}
+                    onEnter={handleEnter}
+                />
+                <WordleListFetcher
+                    greys={greySquares} 
+                    yellows={yellowSquares} 
+                    greens={greenSquares}
+                />
             </header>
         </div>
     );

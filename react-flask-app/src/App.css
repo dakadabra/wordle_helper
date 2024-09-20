@@ -63,6 +63,10 @@
   background: lightgray;
 }
 
+.square.white {
+  background: white;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
