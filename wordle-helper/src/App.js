@@ -13,8 +13,6 @@ const SquareColors = {
 };
 
 function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, autoFocus, disabled }) {
-    const [letter, setLetter] = useState(value)
-    const [color, setColor] = useState(squareColor)
     const inputRef = useRef(null)
 
     // Focus on the square when we open the app if it is the first square in the board
@@ -26,17 +24,16 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, auto
 
     // If the square is clicked, update the square color
     const handleClick = () => {
-        if (letter !== "") {
+        if (value.letter !== "") {
             let newColor;
-            if (color === SquareColors.GREEN) {
+            if (value.color === SquareColors.GREEN) {
                 newColor = SquareColors.GREY;
-            } else if (color === SquareColors.YELLOW) {
+            } else if (value.color === SquareColors.YELLOW) {
                 newColor = SquareColors.GREEN;
             } else {
                 newColor = SquareColors.YELLOW;
             }
-            setColor(newColor);
-            updateSquareInfo(rowIndex, colIndex, letter.toLowerCase(), newColor);
+            updateSquareInfo(rowIndex, colIndex, value.letter.toLowerCase(), newColor);
         }
     }
     
@@ -45,8 +42,7 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, auto
         const lastChar = newLetter === "" ? "" : newLetter.slice(-1).toUpperCase();
     
         if (lastChar === "" || lastChar.match(/[A-Z]/i)) {
-          setLetter(lastChar);
-          updateSquareInfo(rowIndex, colIndex, lastChar.toLowerCase(), color);
+          updateSquareInfo(rowIndex, colIndex, lastChar.toLowerCase(), value.color);
           
           if (lastChar !== "") {
            // Focus next input or Enter button
@@ -65,7 +61,7 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, auto
     };
 
     const handleKeyDown = (event) => {
-        if (event.key === 'Backspace' && letter === '') {
+        if (event.key === 'Backspace' && value.letter === '') {
             if (colIndex > 0) {
                 const prevInput = inputRef.current.parentNode.previousSibling.querySelector('input');
                 prevInput.focus();
@@ -74,12 +70,12 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, auto
     };
 
     return (
-      <button className={"square " + color} onClick={handleClick} disabled={disabled}>
+      <button className={"square " + value.color} onClick={handleClick} disabled={disabled}>
         <input 
           ref={inputRef} 
           className="letter" 
           type="text" 
-          value={letter} 
+          value={value.letter.toUpperCase()} 
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           disabled={disabled}
@@ -88,9 +84,8 @@ function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, auto
     );
 }
 
-function Board({ squares, updateSquareInfo, onEnter }) {
+function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }) {
   const enterButtonRefs = useRef([]);
-  const [currentRow, setCurrentRow] = useState(0);
   const [rowsFilled, setRowsFilled] = useState(Array(6).fill(false));
 
   const handleEnter = (rowIndex) => {
@@ -128,7 +123,7 @@ function Board({ squares, updateSquareInfo, onEnter }) {
           {[0, 1, 2, 3, 4].map((j) => (
             <Square
               key={i * 5 + j}
-              value={squares[i * 5 + j].letter}
+              value={squares[i * 5 + j]}
               squareColor={squares[i * 5 + j].color}
               rowIndex={i}
               colIndex={j}
@@ -154,14 +149,32 @@ function Board({ squares, updateSquareInfo, onEnter }) {
   );
 }
 
+function Instructions() {
+  return (
+    <div>
+      <input type="checkbox" id="instructionsToggle" className="instructions-toggle" defaultChecked/>
+      <div className="instructions-container">
+        <label htmlFor="instructionsToggle" className="instructions-label">Instructions</label>
+        <div className="instructions-content">
+          <ol>
+            <li>Enter your Wordle guesses in the grid below.</li>
+            <li>Click on each letter to cycle through colors (grey, yellow, green) based on Wordle feedback.</li>
+            <li>Press "Enter" after each word to update the list of possible words.</li>
+            <li>Click on a word from the list to automatically fill it into the next empty row.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 function App() {
     const [squares, setSquares] = useState(Array(30).fill().map(() => ({ letter: "", color: SquareColors.GREY })))
     const [yellowSquares, setYellowSquares] = useState(Array(5).fill().map(() => []))
     const [greenSquares, setGreenSquares] = useState(Array(5).fill(""))
     const [greySquares, setGreySquares] = useState(Array(5).fill().map(() => []))
-
-    useEffect(() => {
-    }, [greenSquares, yellowSquares, greySquares]);
+    const [currentRow, setCurrentRow] = useState(0);
 
     // Updates the square info with the letter and color of the square
     const updateSquareInfo = (rowIndex, colIndex, letter, color) => {
@@ -203,19 +216,31 @@ function App() {
         setGreySquares(newGreySquares);
     };
 
+    const handleWordSelect = (word) => {
+        const newSquares = [...squares];
+        word.split('').forEach((letter, index) => {
+            newSquares[currentRow * 5 + index] = { letter: letter, color: SquareColors.GREY };
+        });
+        setSquares(newSquares);
+    };
+
     return (
         <div className="App">
             <header className="App-header">
                 <h1>Wordle Helper</h1>
+                <Instructions />
                 <Board 
                     squares={squares} 
                     updateSquareInfo={updateSquareInfo}
                     onEnter={handleEnter}
+                    currentRow={currentRow}
+                    setCurrentRow={setCurrentRow}
                 />
                 <WordleListFetcher
                     greys={greySquares} 
                     yellows={yellowSquares} 
                     greens={greenSquares}
+                    onWordSelect={handleWordSelect}
                 />
             </header>
         </div>

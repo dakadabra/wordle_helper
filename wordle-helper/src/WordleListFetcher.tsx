@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 
-const MAX_COLUMNS = 7;
+const MAX_COLUMNS = 10;
 const MAX_ROWS = 50;
 
-const WordleListFetcher = ({greys, yellows, greens}) => {
+const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
   const [words, setWords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,15 +69,36 @@ const WordleListFetcher = ({greys, yellows, greens}) => {
   return (
     <div>
       <p>Total possible words: {words.length}</p>
-      <div className="word-columns" style={{ display: 'flex', flexDirection: 'row' }}>
-        {Array.from({ length: MAX_COLUMNS }, (_, col) => (
-          <ul key={col} className="max-h-60 overflow-y-auto" style={{ flex: 1, margin: '0 10px' }}>
+      <div className="word-columns" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+        {Array.from({ length: Math.min(MAX_COLUMNS, words.length) }, (_, col) => (
+          <div key={col} className="max-h-60 overflow-y-auto" style={{ flex: '0 1 auto', margin: '20px 10px', maxWidth: '200px' }}>
             {words.slice(0, MAX_ROWS * MAX_COLUMNS)
-              .filter((_, index) => index % MAX_COLUMNS === col) // Distribute words across columns
+              .filter((_, index) => index % Math.min(MAX_COLUMNS, words.length) === col) // Distribute words across columns
               .map((word, index) => (
-                <li key={index}>{word}</li>
+                <button
+                  key={index}
+                  onClick={() => onWordSelect(word)}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    padding: '10px',
+                    margin: '8px 0',
+                    backgroundColor: '#f0f0f0',
+                    border: '1px solid #ccc',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    fontSize: '24px',
+                    transition: 'background-color 0.3s',
+                    minWidth: '0',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e0e0e0'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
+                >
+                  {word}
+                </button>
               ))}
-          </ul>
+          </div>
         ))}
       </div>
       {words.length > (MAX_COLUMNS * MAX_ROWS) && <p>... and {words.length - MAX_COLUMNS * MAX_ROWS} more words</p>}
