@@ -12,6 +12,7 @@
     transition: background-color 0.3s;
     min-width: 0;
     max-width: 200px;
+    color: black;
 }
 
 .word-button:hover {
