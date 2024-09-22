@@ -1,0 +1,37 @@
+.word-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 18px;
+    transition: background-color 0.3s;
+    min-width: 0;
+    max-width: 200px;
+}
+
+.word-button:hover {
+    background-color: #b0b0b0;
+}
+
+.word-button:active {
+    background-color: #c0c0c0;
+}
+
+.word-columns {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.word-column {
+    flex: 0 0 auto;
+    margin: 10px;
+    width: 80px;
+}

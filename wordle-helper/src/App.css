@@ -1,5 +1,6 @@
 * {
   font-family: "Neue Helvetica", Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
 }
 
 .App {
@@ -25,7 +26,6 @@
   height: 40vmin;
   pointer-events: none;
 }
-
 
 .board-row {
   display: flex;
@@ -58,19 +58,20 @@
 .instructions-container {
   background-color: #3a3f4b;
   border-radius: 10px;
-  padding: 10px;
-  margin: 0 0 25px;
-  max-width: 600px;
+  padding: 15px;
+  margin: 0 0 30px;
+  max-width: 100%;
   text-align: left;
 }
 
 .instructions-container ol {
-  margin: 10px 0 0;
+  margin: 15px 0 0;
+  padding-left: 25px;
 }
 
 .instructions-container li {
-  margin-bottom: 10px;
-  line-height: 1.4;
+  margin-bottom: 12px;
+  line-height: 1.5;
   font-size: 16px;
 }
 
@@ -82,7 +83,7 @@
 
 .instructions-label {
   display: block;
-  padding: 0px;
+  padding: 5px 0;
   text-align: center;
   cursor: pointer;
   font-weight: bold;
@@ -154,4 +155,50 @@
   padding: 0;
   position: absolute;
   text-align: center;
+}
+
+@media (max-width: 600px) {
+  .App-header {
+    padding: 15px;
+  }
+
+  .board-row {
+    margin-bottom: 6px;
+  }
+
+  .board-row button {
+    font-size: 12px;
+    margin-left: 6px;
+    padding: 6px 12px;
+  }
+
+  .square {
+    height: calc(15vw - 4px);
+    width: calc(15vw - 4px);
+    max-height: 55px;
+    max-width: 55px;
+  }
+
+  .letter {
+    font-size: 6vw;
+  }
+
+  .instructions-container {
+    font-size: 13px;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+
+  .instructions-label {
+    font-size: 16px;
+    padding: 2px 0;
+  }
+
+  .instructions-container ol {
+    padding-left: 18px;
+  }
+
+  .instructions-container li {
+    margin-bottom: 8px;
+  }
 }

@@ -1,14 +1,17 @@
-// Code taken from https://gist.github.com/iancward/afe148f28c5767d5ced7a275c12816a3
+// Code inspired by https://gist.github.com/iancward/afe148f28c5767d5ced7a275c12816a3
 
 import React, { useState, useEffect } from 'react';
+import './WordleListFetcher.css';
 
 const MAX_COLUMNS = 10;
+const MIN_COLUMNS = 1;
 const MAX_ROWS = 50;
 
 const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
   const [words, setWords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [columns, setColumns] = useState(MAX_COLUMNS);
 
   function filterWords(wordList: string[]) {
     let filteredList = wordList;
@@ -63,37 +66,34 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
     fetchWords();
   }, [greys, yellows, greens]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const calculatedColumns = Math.floor(width / 100); // Assuming each column needs about 100px
+      setColumns(Math.max(MIN_COLUMNS, Math.min(MAX_COLUMNS, calculatedColumns))); // Clamp between min and max number of columns
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
       <p>Total possible words: {words.length}</p>
-      <div className="word-columns" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-        {Array.from({ length: Math.min(MAX_COLUMNS, words.length) }, (_, col) => (
-          <div key={col} className="max-h-60 overflow-y-auto" style={{ flex: '0 1 auto', margin: '20px 10px', maxWidth: '200px' }}>
-            {words.slice(0, MAX_ROWS * MAX_COLUMNS)
-              .filter((_, index) => index % Math.min(MAX_COLUMNS, words.length) === col) // Distribute words across columns
+      <div className="word-columns">
+        {Array.from({ length: Math.min(columns, words.length) }, (_, col) => (
+          <div key={col} className="word-column">
+            {words.slice(0, MAX_ROWS * columns)
+              .filter((_, index) => index % Math.min(columns, words.length) === col) // Distribute words across columns
               .map((word, index) => (
                 <button
+                  className="word-button"
                   key={index}
                   onClick={() => onWordSelect(word)}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    padding: '10px',
-                    margin: '8px 0',
-                    backgroundColor: '#f0f0f0',
-                    border: '1px solid #ccc',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                    fontSize: '24px',
-                    transition: 'background-color 0.3s',
-                    minWidth: '0',
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e0e0e0'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
                 >
                   {word}
                 </button>
@@ -101,7 +101,7 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
           </div>
         ))}
       </div>
-      {words.length > (MAX_COLUMNS * MAX_ROWS) && <p>... and {words.length - MAX_COLUMNS * MAX_ROWS} more words</p>}
+      {words.length > (columns * MAX_ROWS) && <p>... and {words.length - columns * MAX_ROWS} more words</p>}
     </div>
   );
 };
