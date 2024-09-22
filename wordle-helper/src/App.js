@@ -157,10 +157,10 @@ function Instructions() {
         <label htmlFor="instructionsToggle" className="instructions-label">Instructions</label>
         <div className="instructions-content">
           <ol>
-            <li>Enter your Wordle guesses in the grid below.</li>
-            <li>Click on each letter to cycle through colors (grey, yellow, green) based on Wordle feedback.</li>
+            <li>After each guess on the Wordle app, enter it here.</li>
+            <li>Alternatively, click on a word from the list to automatically fill it into the next empty row.</li>
+            <li>Click on each letter to cycle through colors (grey, yellow, green) based on Wordle's feedback.</li>
             <li>Press "Enter" after each word to update the list of possible words.</li>
-            <li>Click on a word from the list to automatically fill it into the next empty row.</li>
           </ol>
         </div>
       </div>
@@ -228,6 +228,7 @@ function App() {
         <div className="App">
             <header className="App-header">
                 <h1>Wordle Helper</h1>
+                <p>A tool to help you solve Wordle puzzles, showing a list of possible words as you go.</p>
                 <Instructions />
                 <Board 
                     squares={squares} 

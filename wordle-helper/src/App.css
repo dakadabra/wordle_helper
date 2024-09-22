@@ -18,15 +18,6 @@
   min-height: 100vh;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
 .board-row {
   display: flex;
   justify-content: center;
@@ -53,6 +44,10 @@
 .board-row button:disabled {
   cursor: not-allowed;
   filter: brightness(50%);
+}
+
+h1 {
+  margin-bottom: 0;
 }
 
 .instructions-container {
@@ -113,6 +108,10 @@
   font-size: 54px;
   text-align: center;
   width: 65px;
+}
+
+p {
+  font-size: 16px;
 }
 
 .square {
