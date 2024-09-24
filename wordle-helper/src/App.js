@@ -187,16 +187,16 @@ function App() {
     const handleEnter = (rowIndex) => {
         const rowInfo = squares.slice(rowIndex * 5, (rowIndex + 1) * 5);
         const newGreenSquares = [...greenSquares];
-        const newYellowSquares = [...yellowSquares];
-        const newGreySquares = [...greySquares];
+        const newYellowSquares = yellowSquares.map(arr => [...arr]); // Deep copy of yellowSquares
+        const newGreySquares = greySquares.map(arr => [...arr]); // Deep copy of greySquares
         rowInfo.forEach(({ letter, color }, colIndex) => {
             if (color === SquareColors.GREEN) {
                 newGreenSquares[colIndex] = letter; // Add letter to green squares in the correct position
                 if (greenSquares[colIndex] !== letter) { // new green square, so remove one occurence of the letter from yellows
-                  newYellowSquares.some((yellowLetters, i) => {
-                    if (yellowLetters.includes(letter)) {
-                        yellowLetters.splice(yellowLetters.indexOf(letter), 1);
-                        return true;
+                  yellowSquares.some((yellowLettersAtThisSpot, _) => { // Remove one occurence of the letter from yellowsif it was part of previous guesses
+                    if (yellowLettersAtThisSpot.includes(letter)) {
+                        yellowLettersAtThisSpot.splice(yellowLettersAtThisSpot.indexOf(letter), 1);
+                        return true; // Break from the loop
                     }
                  });
               }

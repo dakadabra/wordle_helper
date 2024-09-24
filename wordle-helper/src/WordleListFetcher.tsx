@@ -23,7 +23,7 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
         for (let j = 0; j < yellows[i].length; j++) {
           filteredList = filteredList.filter(word => {
             const yellowLetter = yellows[i][j];
-            const yellowCount = yellows.flat().filter(l => l === yellowLetter).length;
+            const yellowCount = yellows.flat().includes(yellowLetter) ? 1 : 0;
             const greenCount = greens.filter(l => l === yellowLetter).length;
             const wordCount = word.split('').filter(l => l === yellowLetter).length;
 
