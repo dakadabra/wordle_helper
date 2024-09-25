@@ -157,8 +157,12 @@ function Instructions() {
         <label htmlFor="instructionsToggle" className="instructions-label">Instructions</label>
         <div className="instructions-content">
           <ol>
-            <li>After each guess on the Wordle app, enter it here.</li>
-            <li>Alternatively, click on a word from the list to automatically fill it into the next empty row.</li>
+            <li>
+              <ol type="a">
+                <li>After each guess on the Wordle app, enter it here.</li>
+                <li>Alternatively, click on a word from the list to automatically fill it into the next empty row.</li>
+              </ol>
+            </li>
             <li>Click on each letter to cycle through colors (grey, yellow, green) based on Wordle's feedback.</li>
             <li>Press "Enter" after each word to update the list of possible words.</li>
           </ol>
