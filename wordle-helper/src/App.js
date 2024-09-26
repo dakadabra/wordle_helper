@@ -12,7 +12,7 @@ const SquareColors = {
     GREY: 'grey',
 };
 
-function Square({ value, squareColor, colIndex, rowIndex, updateSquareInfo, autoFocus, disabled }) {
+function Square({ value, colIndex, rowIndex, updateSquareInfo, autoFocus, disabled }) {
     const inputRef = useRef(null)
 
     // Focus on the square when we open the app if it is the first square in the board
@@ -124,7 +124,6 @@ function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }
             <Square
               key={i * 5 + j}
               value={squares[i * 5 + j]}
-              squareColor={squares[i * 5 + j].color}
               rowIndex={i}
               colIndex={j}
               updateSquareInfo={(rowIndex, colIndex, letter, color) => {
@@ -172,6 +171,16 @@ function Instructions() {
   );
 }
 
+function RefreshButton({ onRefresh }) {
+  return (
+    <button 
+      className="refresh-button"
+      onClick={onRefresh}
+    >
+      Refresh
+    </button>
+  );
+}
 
 function App() {
     const [squares, setSquares] = useState(Array(30).fill().map(() => ({ letter: "", color: SquareColors.GREY })))
@@ -234,6 +243,15 @@ function App() {
                 <h1>Wordle Helper</h1>
                 <p>A tool to help you solve Wordle puzzles, showing a list of possible words as you go.</p>
                 <Instructions />
+                <RefreshButton 
+                    onRefresh={() => {
+                        setSquares(Array(30).fill({ letter: '', color: SquareColors.GREY }));
+                        setCurrentRow(0);
+                        setGreenSquares(Array(5).fill(''));
+                        setYellowSquares(Array(5).fill([]));
+                        setGreySquares(Array(5).fill([]));
+                    }}
+                />
                 <Board 
                     squares={squares} 
                     updateSquareInfo={updateSquareInfo}
