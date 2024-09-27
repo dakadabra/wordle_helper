@@ -9,9 +9,11 @@ const MAX_ROWS = 50;
 
 const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
   const [words, setWords] = useState<string[]>([]);
+  const [filteredWords, setFilteredWords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [columns, setColumns] = useState(MAX_COLUMNS);
+  const [searchTerm, setSearchTerm] = useState('');
 
   function filterWords(wordList: string[]) {
     let filteredList = wordList;
@@ -43,6 +45,7 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
       }
     }
     setWords(filteredList);
+    setFilteredWords(filteredList);
   }
 
   useEffect(() => {
@@ -78,17 +81,32 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    const filtered = words.filter(word => 
+      searchTerm.split('').every(letter => word.includes(letter))
+    );
+    setFilteredWords(filtered);
+  }, [searchTerm, words]);
+
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
-      <p>Total possible words: {words.length}</p>
+      <input
+        type="text"
+        placeholder="Search for words containing..."
+        value={searchTerm}
+        onChange={(event) => {setSearchTerm(event.target.value.toLowerCase())}}
+        className="search-input"
+      />
+      <p>Total possible words: {filteredWords.length}</p>
       <div className="word-columns">
-        {Array.from({ length: Math.min(columns, words.length) }, (_, col) => (
+        {Array.from({ length: Math.min(columns, filteredWords.length) }, (_, col) => (
           <div key={col} className="word-column">
-            {words.slice(0, MAX_ROWS * columns)
-              .filter((_, index) => index % Math.min(columns, words.length) === col) // Distribute words across columns
+            {filteredWords.slice(0, MAX_ROWS * columns)
+              .filter((_, index) => index % Math.min(columns, filteredWords.length) === col) // Distribute words across columns
               .map((word, index) => (
                 <button
                   className="word-button"
@@ -101,7 +119,7 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
           </div>
         ))}
       </div>
-      {words.length > (columns * MAX_ROWS) && <p>... and {words.length - columns * MAX_ROWS} more words</p>}
+      {filteredWords.length > (columns * MAX_ROWS) && <p>... and {filteredWords.length - columns * MAX_ROWS} more words</p>}
     </div>
   );
 };
