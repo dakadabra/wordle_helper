@@ -1,4 +1,4 @@
-# wordle_helper
+# Wordle Helper
 
 Help users solve the World by showing a list of possible words left.
 Web app can be found at https://dakadabra.github.io/wordle_helper/
