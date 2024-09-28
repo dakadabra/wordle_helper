@@ -206,7 +206,7 @@ function App() {
             if (color === SquareColors.GREEN) {
                 newGreenSquares[colIndex] = letter; // Add letter to green squares in the correct position
                 if (greenSquares[colIndex] !== letter) { // new green square, so remove one occurence of the letter from yellows
-                  yellowSquares.some((yellowLettersAtThisSpot, _) => { // Remove one occurence of the letter from yellowsif it was part of previous guesses
+                  newYellowSquares.some((yellowLettersAtThisSpot, _) => { // Remove one occurence of the letter from yellowsif it was part of previous guesses
                     if (yellowLettersAtThisSpot.includes(letter)) {
                         yellowLettersAtThisSpot.splice(yellowLettersAtThisSpot.indexOf(letter), 1);
                         return true; // Break from the loop
