@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import './WordleListFetcher.css';
+import wordListWithFreqs from './word_freq_data/filtered_words.json';
 
 const MAX_COLUMNS = 10;
 const MIN_COLUMNS = 1;
@@ -49,15 +50,18 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
   }
 
   useEffect(() => {
-    const fetchWords = async () => {
+    const loadWords = async () => {
       try {
-        const response = await fetch('https://raw.githubusercontent.com/tabatkins/wordle-list/main/words');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text();
-        const wordList = text.split('\n').filter(word => word.trim() !== '');
-        wordList.sort();
+        /* This approach was replaced with a list of words sorted by frequency in English */
+        // const response = await fetch('https://raw.githubusercontent.com/tabatkins/wordle-list/main/words');
+        // const response = await fetch('./src/word_freq_data/filtered_words.txt');
+        // if (!response.ok) {
+        //   throw new Error(`HTTP error! status: ${response.status}`);
+        // }
+        // const text = await response.text();
+        // const wordList = text.split('\n').filter(word => word.trim() !== '');
+        // wordList.sort();
+        const wordList = Object.keys(wordListWithFreqs);
         filterWords(wordList);
       } catch (e) {
         setError('Failed to fetch the word list: ' + e.message);
@@ -66,7 +70,7 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
       }
     };
 
-    fetchWords();
+    loadWords();
   }, [greys, yellows, greens]);
 
   useEffect(() => {
@@ -101,7 +105,7 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
         onChange={(event) => {setSearchTerm(event.target.value.toLowerCase())}}
         className="search-input"
       />
-      <p>Total possible words: {filteredWords.length}</p>
+      <p>Total possible words (sorted by frequency in English): {filteredWords.length}</p>
       <div className="word-columns">
         {Array.from({ length: Math.min(columns, filteredWords.length) }, (_, col) => (
           <div key={col} className="word-column">
