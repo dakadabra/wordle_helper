@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check if the input file exists
+# Check if the input file exists, file from https://www.kaggle.com/datasets/rtatman/english-word-frequency?resource=download
 if [[ ! -f "unigram_freq.csv" ]]; then
     echo "File not found: in.csv"
     exit 1

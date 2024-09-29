@@ -18,30 +18,30 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
 
   function filterWords(wordList: string[]) {
     let filteredList = wordList;
-    for (let i = 0; i < 5; i++) { // for each letter in the word
-      if (greens[i] !== "") {
-        filteredList = filteredList.filter(word => word[i] === greens[i]);
+    for (let currLetterIdx = 0; currLetterIdx < 5; currLetterIdx++) { // for each letter in the word
+      if (greens[currLetterIdx] !== "") {
+        filteredList = filteredList.filter(word => word[currLetterIdx] === greens[currLetterIdx]);
       }
-      if (yellows[i] !== "") {
-        for (let j = 0; j < yellows[i].length; j++) {
+      if (yellows[currLetterIdx] !== "") {
+        for (let j = 0; j < yellows[currLetterIdx].length; j++) {
           filteredList = filteredList.filter(word => {
-            const yellowLetter = yellows[i][j];
+            const yellowLetter = yellows[currLetterIdx][j];
             const yellowCount = yellows.flat().includes(yellowLetter) ? 1 : 0;
             const greenCount = greens.filter(l => l === yellowLetter).length;
             const wordCount = word.split('').filter(l => l === yellowLetter).length;
 
-            return word[i] !== yellowLetter && // Ensure the yellow letter is not at this position
+            return word[currLetterIdx] !== yellowLetter && // Ensure the yellow letter is not at this position
                    wordCount >= yellowCount + greenCount; // Ensure the word has at least as many occurrences as yellows and greens combined
           });
         }
       }
-      if (greys[i] !== "") {
-        for (let j = 0; j < greys[i].length; j++) {
+      if (greys[currLetterIdx] !== "") {
+        for (let j = 0; j < greys[currLetterIdx].length; j++) {
           // remove words that include the grey letter and don't already have the letter in the correct position
-          filteredList = filteredList.filter(word => (word[i] !== greys[i][j]) &&
-                                                      (!word.includes(greys[i][j]) ||
-                                                      greens.includes(greys[i][j]) ||
-                                                      yellows.some(col => col.includes(greys[i][j]))));
+          filteredList = filteredList.filter(word => (word[currLetterIdx] !== greys[currLetterIdx][j]) &&
+                                                      (!word.includes(greys[currLetterIdx][j]) ||
+                                                      greens.includes(greys[currLetterIdx][j]) ||
+                                                      yellows.some(col => col.includes(greys[currLetterIdx][j]))));
         }
       }
     }
