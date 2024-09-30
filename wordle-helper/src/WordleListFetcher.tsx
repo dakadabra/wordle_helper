@@ -128,7 +128,7 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
         onChange={(event) => {setSearchTerm(event.target.value.toLowerCase())}}
         className="search-input"
       />
-      <p>Total possible words (sorted by frequency in English): {filteredWords.length}</p>
+      <h4>Total possible words (sorted by frequency in English): {filteredWords.length}</h4>
       <div className="word-columns">
         {Array.from({ length: Math.min(columns, filteredWords.length) }, (_, col) => (
           <div key={col} className="word-column">

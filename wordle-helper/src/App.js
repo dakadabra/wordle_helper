@@ -241,7 +241,7 @@ function App() {
         <div className="App">
             <header className="App-header">
                 <h1>Wordle Helper</h1>
-                <p>A tool to help you solve Wordle puzzles, showing a list of possible words as you go.</p>
+                <h5>A tool to help you solve Wordle puzzles, showing a list of possible words as you go.</h5>
                 <Instructions />
                 <RefreshButton 
                     onRefresh={() => {

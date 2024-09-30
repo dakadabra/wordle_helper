@@ -3,13 +3,16 @@
     margin: 5px;
     padding: 5px;
     border: 1px solid #ccc;
+    background-color: #a9a9a9;
     border-radius: 6px;
     text-align: center;
     font-size: 18px;
+    color: black;
 }
 
-p {
+h4 {
     margin: 15px 0 5px;
+    text-align: center;
 }
 
 .search-input {
