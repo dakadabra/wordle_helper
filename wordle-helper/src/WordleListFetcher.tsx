@@ -15,6 +15,7 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
   const [error, setError] = useState<string | null>(null);
   const [columns, setColumns] = useState(MAX_COLUMNS);
   const [searchTerm, setSearchTerm] = useState('');
+  const [letterFrequency, setLetterFrequency] = useState<[string, number][]>([]);
 
   function filterWords(wordList: string[]) {
     let filteredList = wordList;
@@ -92,12 +93,34 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
     setFilteredWords(filtered);
   }, [searchTerm, words]);
 
+  useEffect(() => {
+    const frequency: { [key: string]: number } = {};
+    filteredWords.forEach(word => {
+      word.split('').forEach(letter => {
+        frequency[letter] = (frequency[letter] || 0) + 1;
+      });
+    });
+    Object.keys(frequency).forEach(letter => {
+      frequency[letter] = Number(Math.min(100, ((frequency[letter] / filteredWords.length) * 100)).toFixed(2));
+    });
+    const sortedFrequency = Object.entries(frequency)
+      .sort((a, b) => b[1] - a[1]);
+
+    setLetterFrequency(sortedFrequency);
+  }, [filteredWords]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div>
+    <div className="word-list-component">
+      <div className="letter-frequency">
+        {letterFrequency.map(([letter, count]) => (
+          <button key={letter} className="letter-square" onClick={() => {setSearchTerm(searchTerm + letter)}}>
+            {`${letter.toUpperCase()} ${count}%`}
+          </button>
+        ))}
+      </div>
       <input
         type="text"
         placeholder="Search for words containing..."

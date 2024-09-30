@@ -1,7 +1,21 @@
+.letter-square {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 18px;
+}
+
+p {
+    margin: 15px 0 5px;
+}
+
 .search-input {
     width: 100%;
     padding: 10px;
-    margin: 8px 0;
+    margin: 15px 0;
     border: 1px solid #ccc;
     border-radius: 6px;
     cursor: pointer;
@@ -46,4 +60,8 @@
     flex: 0 0 auto;
     margin: 10px;
     width: 80px;
+}
+
+.word-list-component {
+    margin: 20px 250px 0;
 }
