@@ -11,7 +11,6 @@
 }
 
 h4 {
-    margin: 15px 0 5px;
     text-align: center;
 }
 
@@ -65,6 +64,9 @@ h4 {
     width: 80px;
 }
 
-.word-list-component {
-    margin: 20px 250px 0;
+.letter-search-component {
+    margin: 20px auto;
+    align-items: center;
+    width: 90%;
+    max-width: 1200px;
 }

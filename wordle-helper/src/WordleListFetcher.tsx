@@ -113,21 +113,23 @@ const WordleListFetcher = ({greys, yellows, greens, onWordSelect}) => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="word-list-component">
-      <div className="letter-frequency">
-        {letterFrequency.map(([letter, count]) => (
-          <button key={letter} className="letter-square" onClick={() => {setSearchTerm(searchTerm + letter)}}>
-            {`${letter.toUpperCase()} ${count}%`}
-          </button>
-        ))}
+    <div>
+      <div className="letter-search-component">
+        <div className="letter-frequency">
+          {letterFrequency.map(([letter, count]) => (
+            <button key={letter} className="letter-square" onClick={() => {setSearchTerm(searchTerm + letter)}}>
+              {`${letter.toUpperCase()} ${count}%`}
+            </button>
+          ))}
+        </div>
+        <input
+          type="text"
+          placeholder="Search for words containing..."
+          value={searchTerm}
+          onChange={(event) => {setSearchTerm(event.target.value.toLowerCase())}}
+          className="search-input"
+        />
       </div>
-      <input
-        type="text"
-        placeholder="Search for words containing..."
-        value={searchTerm}
-        onChange={(event) => {setSearchTerm(event.target.value.toLowerCase())}}
-        className="search-input"
-      />
       <h4>Total possible words (sorted by frequency in English): {filteredWords.length}</h4>
       <div className="word-columns">
         {Array.from({ length: Math.min(columns, filteredWords.length) }, (_, col) => (
