@@ -1,3 +1,10 @@
+.letter-search-component {
+    margin: 20px auto;
+    align-items: center;
+    width: 90%;
+    max-width: 1200px;
+}
+
 .letter-square {
     display: inline-block;
     margin: 5px;
@@ -62,11 +69,4 @@ h4 {
     flex: 0 0 auto;
     margin: 10px;
     width: 80px;
-}
-
-.letter-search-component {
-    margin: 20px auto;
-    align-items: center;
-    width: 90%;
-    max-width: 1200px;
 }
