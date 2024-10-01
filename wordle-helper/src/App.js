@@ -214,8 +214,17 @@ function App() {
                  });
               }
             } else if (color === SquareColors.YELLOW) {
-              if (!newYellowSquares[colIndex].includes(letter)) { // If letter is not already in the yellow squares at that position
-                newYellowSquares[colIndex].push(letter); // Add letter to yellow squares in that position
+              if (greenSquares.includes(letter)) {
+                // Remove the letter from greenSquares, as we're using it as a counter (a person might have used it as a green guess before, and now moved it to a yellow positon)
+                const index = greenSquares.indexOf(letter);
+                if (index > -1) {
+                  greenSquares[index] = '';
+                }
+              } else {
+                // Add the letter to the right array in newYellowSquares
+                if (!newYellowSquares[colIndex].includes(letter)) {
+                  newYellowSquares[colIndex].push(letter);
+                }
               }
             } else if (color === SquareColors.GREY) {
               if (!newGreySquares[colIndex].includes(letter)) { // If letter is not already in the grey squares at that position
