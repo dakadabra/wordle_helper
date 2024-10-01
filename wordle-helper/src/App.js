@@ -151,15 +151,16 @@ function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }
 function Instructions() {
   return (
     <div>
-      <input type="checkbox" id="instructionsToggle" className="instructions-toggle" defaultChecked/>
+      <input type="checkbox" id="instructionsToggle" className="instructions-toggle"/>
       <div className="instructions-container">
         <label htmlFor="instructionsToggle" className="instructions-label">Instructions</label>
         <div className="instructions-content">
           <ol>
+            <li>This tool is meant to be used in conjunction with the Wordle game on New York Times.</li>
             <li>
               <ol type="a">
-                <li>After each guess on the Wordle app, enter it here.</li>
-                <li>Alternatively, click on a word from the list to automatically fill it into the next empty row.</li>
+                <li>After each guess you make on the Wordle app, enter it here.</li>
+                <li>Alternatively, click on the word you guessed from the list to automatically fill it into the next empty row.</li>
               </ol>
             </li>
             <li>Click on each letter to cycle through colors (grey, yellow, green) based on Wordle's feedback.</li>
@@ -205,11 +206,10 @@ function App() {
         rowInfo.forEach(({ letter, color }, colIndex) => {
             if (color === SquareColors.GREEN) {
                 newGreenSquares[colIndex] = letter; // Add letter to green squares in the correct position
-                if (greenSquares[colIndex] !== letter) { // new green square, so remove one occurence of the letter from yellows
-                  newYellowSquares.some((yellowLettersAtThisSpot, _) => { // Remove one occurence of the letter from yellowsif it was part of previous guesses
+                if (greenSquares[colIndex] !== letter) { // new green square, so remove occurences of the letter from yellows
+                  newYellowSquares.some((yellowLettersAtThisSpot, _) => { // Removes occurence of the letter from yellows if it was part of previous guesses
                     if (yellowLettersAtThisSpot.includes(letter)) {
                         yellowLettersAtThisSpot.splice(yellowLettersAtThisSpot.indexOf(letter), 1);
-                        return true; // Break from the loop
                     }
                  });
               }
