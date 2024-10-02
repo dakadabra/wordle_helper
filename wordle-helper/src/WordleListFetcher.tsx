@@ -4,9 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './WordleListFetcher.css';
 import wordListWithFreqs from './word_freq_data/filtered_words.json';
 
-const MAX_COLUMNS = 10;
-const MIN_COLUMNS = 1;
-
 interface WordleListFetcherProps {
   greys: string[][];
   yellows: string[][];
@@ -19,7 +16,6 @@ const WordleListFetcher: React.FC<WordleListFetcherProps> = ({ greys, yellows, g
   const [filteredWords, setFilteredWords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [columns, setColumns] = useState<number>(MAX_COLUMNS);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [letterFrequency, setLetterFrequency] = useState<[string, number][]>([]);
 
@@ -59,7 +55,6 @@ const WordleListFetcher: React.FC<WordleListFetcherProps> = ({ greys, yellows, g
         const wordList = Object.keys(wordListWithFreqs);
         const filteredList = filterWords(wordList);
         setWords(filteredList);
-        setFilteredWords(filteredList);
       } catch (e) {
         setError('Failed to fetch the word list: ' + e.message);
       } finally {
@@ -69,18 +64,6 @@ const WordleListFetcher: React.FC<WordleListFetcherProps> = ({ greys, yellows, g
 
     loadWords();
   }, [filterWords]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      const calculatedColumns = Math.floor(width / 100); // Assuming each column needs about 100px
-      setColumns(Math.max(MIN_COLUMNS, Math.min(MAX_COLUMNS, calculatedColumns))); // Clamp between min and max number of columns
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     const filtered = words.filter(word => 
@@ -112,39 +95,50 @@ const WordleListFetcher: React.FC<WordleListFetcherProps> = ({ greys, yellows, g
 
   return (
     <>
-      <div className="letter-search-component">
-        <LetterFrequency letterFrequency={letterFrequency} setSearchTerm={setSearchTerm} />
-        <input
-          type="text"
-          placeholder="Search for words containing..."
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.target.value.toLowerCase())}
-          className="search-input"
-        />
-      </div>
-      <WordList 
-        filteredWords={filteredWords}
-        columns={columns}
-        onWordSelect={onWordSelect}
-      />
+      <LetterFrequency letterFrequency={letterFrequency} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <WordList filteredWords={filteredWords} onWordSelect={onWordSelect} />
     </>
   );
 };
 
-const LetterFrequency = ({letterFrequency, setSearchTerm }) => {
+const LetterFrequency = ({letterFrequency, searchTerm, setSearchTerm }) => {
   return (
-    <div className="letter-frequency">
-      {letterFrequency.map(([letter, count]) => (
-        <button key={letter} className="letter-square" onClick={() => setSearchTerm(prev => prev + letter)}>
-          {`${letter.toUpperCase()} ${count}%`}
-        </button>
-      ))}
+    <div className="letter-search-component">
+      <input
+      type="text"
+      placeholder="Search for words containing..."
+      value={searchTerm}
+      onChange={(event) => setSearchTerm(event.target.value.toLowerCase())}
+      className="search-input"
+      />
+      <div className="letter-frequency">
+        {letterFrequency.map(([letter, count]) => (
+          <button key={letter} className="letter-square" onClick={() => setSearchTerm(prev => prev + letter)}>
+            {`${letter.toUpperCase()} ${count}%`}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
 
-const WordList = ({ filteredWords, columns, onWordSelect }) => {
+const WordList = ({ filteredWords, onWordSelect }) => {
   const MAX_ROWS = 20;
+  const MAX_COLUMNS = 10;
+  const MIN_COLUMNS = 1;
+  const [columns, setColumns] = useState<number>(MAX_COLUMNS);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const calculatedColumns = Math.floor(width / 100); // Assuming each column needs about 100px
+      setColumns(Math.max(MIN_COLUMNS, Math.min(MAX_COLUMNS, calculatedColumns))); // Clamp between min and max number of columns
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <>
