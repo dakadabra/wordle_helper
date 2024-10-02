@@ -11,15 +11,18 @@ interface WordleListFetcherProps {
   onWordSelect: (word: string) => void;
 }
 
+interface WordFrequency {
+  [key: string]: number;
+}
+
 const WordleListFetcher: React.FC<WordleListFetcherProps> = ({ greys, yellows, greens, onWordSelect }) => {
   const [words, setWords] = useState<string[]>([]);
   const [filteredWords, setFilteredWords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [letterFrequency, setLetterFrequency] = useState<[string, number][]>([]);
+  const [searchedLetters, setSearchedLetters] = useState<string>('');
 
-  const filterWords = useCallback((wordList: string[]) => {
+  const filterWords = useCallback((wordList: string[]): string[] => {
     let filteredList = wordList;
     for (let currLetterIdx = 0; currLetterIdx < 5; currLetterIdx++) { // for each letter in the word
       if (greens[currLetterIdx] !== "") {
@@ -50,12 +53,12 @@ const WordleListFetcher: React.FC<WordleListFetcherProps> = ({ greys, yellows, g
   }, [greens, yellows, greys]);
 
   useEffect(() => {
-    const loadWords = async () => {
+    const loadWords = async (): Promise<void> => {
       try {
-        const wordList = Object.keys(wordListWithFreqs);
+        const wordList: string[] = Object.keys(wordListWithFreqs);
         const filteredList = filterWords(wordList);
         setWords(filteredList);
-      } catch (e) {
+      } catch (e: any) {
         setError('Failed to fetch the word list: ' + e.message);
       } finally {
         setIsLoading(false);
@@ -67,53 +70,65 @@ const WordleListFetcher: React.FC<WordleListFetcherProps> = ({ greys, yellows, g
 
   useEffect(() => {
     const filtered = words.filter(word => 
-      searchTerm.split('').every(letter => word.includes(letter))
+      searchedLetters.split('').every(letter => word.includes(letter))
     );
     setFilteredWords(filtered);
-  }, [searchTerm, words]);
-
-  useEffect(() => {
-    const frequency: { [key: string]: number } = {};
-    filteredWords.forEach(word => {
-      const uniqueLetters = new Set(word.split('')); // So that we don't double count letters that appear twice in the same word
-      uniqueLetters.forEach(letter => {
-        frequency[letter] = (frequency[letter] || 0) + 1;
-      });
-    });
-    const sortedFrequency = Object.entries(frequency)
-      .map(([letter, count]) => [
-        letter,
-        Number(Math.min(100, ((count / filteredWords.length) * 100)).toFixed(2))
-      ] as [string, number])
-      .sort((a, b) => b[1] - a[1]);
-
-    setLetterFrequency(sortedFrequency);
-  }, [filteredWords]);
+  }, [searchedLetters, words]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <>
-      <LetterFrequency letterFrequency={letterFrequency} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <LetterFrequency words={filteredWords} searchedLetters={searchedLetters} setSearchedLetters={setSearchedLetters} />
       <WordList filteredWords={filteredWords} onWordSelect={onWordSelect} />
     </>
   );
 };
 
-const LetterFrequency = ({letterFrequency, searchTerm, setSearchTerm }) => {
+interface LetterFrequencyProps {
+  words: string[];
+  searchedLetters: string;
+  setSearchedLetters: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const LetterFrequency: React.FC<LetterFrequencyProps> = ({words, searchedLetters, setSearchedLetters }) => {
+  const [letterFrequency, setLetterFrequency] = useState<[string, number][]>([]);
+
+  useEffect(() => {
+    const frequency: WordFrequency = {};
+    words.forEach((word: string) => {
+      const uniqueLetters = new Set(word.split('')); // So that we don't double count letters that appear twice in the same word
+      uniqueLetters.forEach((letter: string) => {
+        frequency[letter] = (frequency[letter] || 0) + 1;
+      });
+    });
+    const sortedFrequency = Object.entries(frequency)
+      .map(([letter, count]) => [
+        letter,
+        Number(Math.min(100, ((count / words.length) * 100)).toFixed(2))
+      ] as [string, number])
+      .sort((a, b) => b[1] - a[1]);
+
+    setLetterFrequency(sortedFrequency);
+  }, [words]);
+
+  const handleLetterClick = (letter: string): void => {
+    setSearchedLetters((prev: string) => prev + letter);
+  };
+
   return (
     <div className="letter-search-component">
       <input
-      type="text"
-      placeholder="Search for words containing..."
-      value={searchTerm}
-      onChange={(event) => setSearchTerm(event.target.value.toLowerCase())}
-      className="search-input"
+        type="text"
+        placeholder="Search for words containing..."
+        value={searchedLetters}
+        onChange={(event) => setSearchedLetters(event.target.value.toLowerCase())}
+        className="search-input"
       />
       <div className="letter-frequency">
         {letterFrequency.map(([letter, count]) => (
-          <button key={letter} className="letter-square" onClick={() => setSearchTerm(prev => prev + letter)}>
+          <button key={letter} className="letter-square" onClick={() => handleLetterClick(letter)}>
             {`${letter.toUpperCase()} ${count}%`}
           </button>
         ))}
@@ -122,14 +137,19 @@ const LetterFrequency = ({letterFrequency, searchTerm, setSearchTerm }) => {
   );
 };
 
-const WordList = ({ filteredWords, onWordSelect }) => {
+interface WordListProps {
+  filteredWords: string[];
+  onWordSelect: (word: string) => void;
+}
+
+const WordList: React.FC<WordListProps> = ({ filteredWords, onWordSelect }) => {
   const MAX_ROWS = 20;
   const MAX_COLUMNS = 10;
   const MIN_COLUMNS = 1;
   const [columns, setColumns] = useState<number>(MAX_COLUMNS);
 
   useEffect(() => {
-    const handleResize = () => {
+    const handleResize = (): void => {
       const width = window.innerWidth;
       const calculatedColumns = Math.floor(width / 100); // Assuming each column needs about 100px
       setColumns(Math.max(MIN_COLUMNS, Math.min(MAX_COLUMNS, calculatedColumns))); // Clamp between min and max number of columns
@@ -147,7 +167,7 @@ const WordList = ({ filteredWords, onWordSelect }) => {
         {Array.from({ length: Math.min(columns, filteredWords.length) }, (_, col) => (
           <div key={col} className="word-column">
             {filteredWords.slice(0, MAX_ROWS * columns)
-              .filter((_: any, index: number) => index % Math.min(columns, filteredWords.length) === col) // Distribute words across columns
+              .filter((_, index: number) => index % Math.min(columns, filteredWords.length) === col) // Distribute words across columns
               .map((word: string, index: number) => (
                 <button
                   className="word-button"
