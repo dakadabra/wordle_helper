@@ -12,6 +12,9 @@ const SquareColors = {
     GREY: 'grey',
 };
 
+const MAX_GUESSES = 6;
+const NUM_LETTERS = 5;
+
 function Square({ value, colIndex, rowIndex, updateSquareInfo, autoFocus, disabled }) {
     const inputRef = useRef(null)
 
@@ -86,7 +89,7 @@ function Square({ value, colIndex, rowIndex, updateSquareInfo, autoFocus, disabl
 
 function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }) {
   const enterButtonRefs = useRef([]);
-  const [rowsFilled, setRowsFilled] = useState(Array(6).fill(false));
+  const [rowsFilled, setRowsFilled] = useState(Array(MAX_GUESSES).fill(false));
 
   const handleEnter = (rowIndex) => {
     onEnter(rowIndex);
@@ -94,7 +97,7 @@ function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }
     
     // Use setTimeout to ensure the next row is enabled before focusing
     setTimeout(() => {
-      if (rowIndex < 5) {
+      if (rowIndex < NUM_LETTERS) {
         const nextRow = enterButtonRefs.current[rowIndex].parentNode.nextSibling;
         const firstInput = nextRow.querySelector('input');
         firstInput.focus();
@@ -103,7 +106,7 @@ function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }
   }
 
   const checkRowFilled = (rowIndex) => {
-    const row = squares.slice(rowIndex * 5, (rowIndex + 1) * 5);
+    const row = squares.slice(rowIndex * NUM_LETTERS, (rowIndex + 1) * NUM_LETTERS);
     const isFilled = row.every(square => square.letter !== "");
     setRowsFilled(prev => {
       const newRowsFilled = [...prev];
@@ -118,12 +121,12 @@ function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }
 
   return (
     <>
-      {[0, 1, 2, 3, 4, 5].map((i) => (
+      {Array.from({ length: MAX_GUESSES }, (_, i) => (
         <div className="board-row" key={i}>
-          {[0, 1, 2, 3, 4].map((j) => (
+          {Array.from({ length: NUM_LETTERS }, (_, j) => (
             <Square
-              key={i * 5 + j}
-              value={squares[i * 5 + j]}
+              key={i * NUM_LETTERS + j}
+              value={squares[i * NUM_LETTERS + j]}
               rowIndex={i}
               colIndex={j}
               updateSquareInfo={(rowIndex, colIndex, letter, color) => {
@@ -185,21 +188,21 @@ function RefreshButton({ onRefresh }) {
 
 function App() {
     const [squares, setSquares] = useState(Array(30).fill().map(() => ({ letter: "", color: SquareColors.GREY })))
-    const [yellowSquares, setYellowSquares] = useState(Array(5).fill().map(() => []))
-    const [greenSquares, setGreenSquares] = useState(Array(5).fill(""))
-    const [greySquares, setGreySquares] = useState(Array(5).fill().map(() => []))
+    const [yellowSquares, setYellowSquares] = useState(Array(NUM_LETTERS).fill().map(() => []))
+    const [greenSquares, setGreenSquares] = useState(Array(NUM_LETTERS).fill(""))
+    const [greySquares, setGreySquares] = useState(Array(NUM_LETTERS).fill().map(() => []))
     const [currentRow, setCurrentRow] = useState(0);
 
     // Updates the square info with the letter and color of the square
     const updateSquareInfo = (rowIndex, colIndex, letter, color) => {
         const newSquares = [...squares];
-        newSquares[rowIndex * 5 + colIndex] = { letter, color };
+        newSquares[rowIndex * NUM_LETTERS + colIndex] = { letter, color };
         setSquares(newSquares);
     };
 
     // Updates the green, yellow, and grey squares with the letter and color of the square once the row is entered
     const handleEnter = (rowIndex) => {
-        const rowInfo = squares.slice(rowIndex * 5, (rowIndex + 1) * 5);
+        const rowInfo = squares.slice(rowIndex * NUM_LETTERS, (rowIndex + 1) * NUM_LETTERS);
         const newGreenSquares = [...greenSquares];
         const newYellowSquares = yellowSquares.map(arr => [...arr]); // Deep copy of yellowSquares
         const newGreySquares = greySquares.map(arr => [...arr]); // Deep copy of greySquares
@@ -241,7 +244,7 @@ function App() {
     const handleWordSelect = (word) => {
         const newSquares = [...squares];
         word.split('').forEach((letter, index) => {
-            newSquares[currentRow * 5 + index] = { letter: letter, color: SquareColors.GREY };
+            newSquares[currentRow * NUM_LETTERS + index] = { letter: letter, color: SquareColors.GREY };
         });
         setSquares(newSquares);
     };
@@ -256,9 +259,9 @@ function App() {
                     onRefresh={() => {
                         setSquares(Array(30).fill({ letter: '', color: SquareColors.GREY }));
                         setCurrentRow(0);
-                        setGreenSquares(Array(5).fill(''));
-                        setYellowSquares(Array(5).fill([]));
-                        setGreySquares(Array(5).fill([]));
+                        setGreenSquares(Array(NUM_LETTERS).fill(''));
+                        setYellowSquares(Array(NUM_LETTERS).fill([]));
+                        setGreySquares(Array(NUM_LETTERS).fill([]));
                     }}
                 />
                 <Board 
