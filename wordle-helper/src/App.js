@@ -2,9 +2,12 @@
 // Filename - App.js
  
 // Importing modules
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback  } from "react";
+import refresh from './refresh.png';
 import "./App.css";
-import WordleListFetcher from './WordleListFetcher.tsx';
+import LetterFrequency from './LetterFrequency.tsx';
+import WordList from './WordList.tsx';
+import wordListWithFreqs from './word_freq_data/filtered_words.json';
 
 const SquareColors = {
     GREEN: 'green',
@@ -120,7 +123,7 @@ function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }
   }, [squares, currentRow]);
 
   return (
-    <>
+    <div className="board">
       {Array.from({ length: MAX_GUESSES }, (_, i) => (
         <div className="board-row" key={i}>
           {Array.from({ length: NUM_LETTERS }, (_, j) => (
@@ -147,7 +150,7 @@ function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }
           </button>
         </div>
       ))}
-    </>
+    </div>
   );
 }
 
@@ -177,12 +180,12 @@ function Instructions() {
 
 function RefreshButton({ onRefresh }) {
   return (
-    <button 
+    <img 
+      src={refresh}
+      alt="Refresh"
       className="refresh-button"
       onClick={onRefresh}
-    >
-      Refresh
-    </button>
+    />
   );
 }
 
@@ -192,7 +195,59 @@ function App() {
     const [greenSquares, setGreenSquares] = useState(Array(NUM_LETTERS).fill(""))
     const [greySquares, setGreySquares] = useState(Array(NUM_LETTERS).fill().map(() => []))
     const [currentRow, setCurrentRow] = useState(0);
-
+    const [currentView, setCurrentView] = useState("wordlist")
+    const [words, setWords] = useState([]);
+    const [filteredWords, setFilteredWords] = useState([]);
+    const [searchedLetters, setSearchedLetters] = useState('');
+  
+    const filterWords = useCallback((wordList) => {
+      let filteredList = wordList;
+      for (let currLetterIdx = 0; currLetterIdx < 5; currLetterIdx++) { // for each letter in the word
+        if (greenSquares[currLetterIdx] !== "") {
+          filteredList = filteredList.filter(word => word[currLetterIdx] === greenSquares[currLetterIdx]);
+        }
+        if (yellowSquares[currLetterIdx].length > 0) {
+          filteredList = filteredList.filter(word => {
+            return yellowSquares[currLetterIdx].every(yellowLetter => {
+              const yellowCount = yellowSquares.flat().filter(l => l === yellowLetter).length;
+              const greenCount = greenSquares.filter(l => l === yellowLetter).length;
+              const wordCount = word.split('').filter(l => l === yellowLetter).length;
+              return word[currLetterIdx] !== yellowLetter && wordCount >= yellowCount + greenCount;
+            });
+          });
+        }
+        if (greySquares[currLetterIdx].length > 0) {
+          filteredList = filteredList.filter(word => {
+            return greySquares[currLetterIdx].every(greyLetter => 
+              (word[currLetterIdx] !== greyLetter) &&
+              (!word.includes(greyLetter) ||
+              greenSquares.includes(greyLetter) ||
+              yellowSquares.some(col => col.includes(greyLetter)))
+            );
+          });
+        }
+      }
+      return filteredList;
+    }, [greenSquares, yellowSquares, greySquares]);
+  
+    useEffect(() => {
+      const loadWords = async () => {
+          const wordList = Object.keys(wordListWithFreqs);
+          const filteredList = filterWords(wordList);
+          setWords(filteredList);
+      };
+  
+      loadWords();
+    }, [filterWords]);
+  
+    useEffect(() => {
+      const filtered = words.filter(word => 
+        searchedLetters.split('').every(letter => word.includes(letter))
+      );
+      setFilteredWords(filtered);
+      setCurrentView('wordlist');
+    }, [searchedLetters, words]);
+  
     // Updates the square info with the letter and color of the square
     const updateSquareInfo = (rowIndex, colIndex, letter, color) => {
         const newSquares = [...squares];
@@ -252,31 +307,43 @@ function App() {
     return (
         <div className="App">
             <header className="App-header">
-                <h1>Wordle Helper</h1>
-                <h5>A tool to help you solve Wordle puzzles, showing a list of possible words as you go.</h5>
-                <Instructions />
-                <RefreshButton 
-                    onRefresh={() => {
-                        setSquares(Array(30).fill({ letter: '', color: SquareColors.GREY }));
-                        setCurrentRow(0);
-                        setGreenSquares(Array(NUM_LETTERS).fill(''));
-                        setYellowSquares(Array(NUM_LETTERS).fill([]));
-                        setGreySquares(Array(NUM_LETTERS).fill([]));
-                    }}
-                />
-                <Board 
-                    squares={squares} 
-                    updateSquareInfo={updateSquareInfo}
-                    onEnter={handleEnter}
-                    currentRow={currentRow}
-                    setCurrentRow={setCurrentRow}
-                />
-                <WordleListFetcher
-                    greys={greySquares} 
-                    yellows={yellowSquares} 
-                    greens={greenSquares}
-                    onWordSelect={handleWordSelect}
-                />
+              <h1>Wordle Helper</h1>
+              <h5>A tool to help you solve Wordle puzzles, showing a list of possible words as you go.</h5>
+              <Instructions />
+              <Board 
+                  squares={squares} 
+                  updateSquareInfo={updateSquareInfo}
+                  onEnter={handleEnter}
+                  currentRow={currentRow}
+                  setCurrentRow={setCurrentRow}
+              />
+            <div className="navbar">
+              <button onClick={() => setCurrentView('letterfrequency')}>Letter Frequencies</button>
+              <button onClick={() => setCurrentView('wordlist')}>Word List</button>
+              <RefreshButton 
+                  onRefresh={() => {
+                      setSquares(Array(30).fill({ letter: '', color: SquareColors.GREY }));
+                      setCurrentRow(0);
+                      setGreenSquares(Array(NUM_LETTERS).fill(''));
+                      setYellowSquares(Array(NUM_LETTERS).fill([]));
+                      setGreySquares(Array(NUM_LETTERS).fill([]));
+                  }}
+              />
+            </div>
+            <div className={`component ${currentView === 'letterfrequency' ? 'visible' : 'hidden'}`}>
+              <LetterFrequency
+                words={filteredWords}
+                searchedLetters={searchedLetters}
+                setSearchedLetters={setSearchedLetters}
+              />
+            </div>
+            <div className={`component ${currentView === 'wordlist' ? 'visible' : 'hidden'}`}>
+              <WordList
+                filteredWords={filteredWords}
+                onWordSelect={handleWordSelect}
+              />
+            </div>
+
             </header>
         </div>
     );

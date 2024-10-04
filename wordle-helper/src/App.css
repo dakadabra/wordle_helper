@@ -18,6 +18,10 @@
   min-height: 100vh;
 }
 
+.board {
+  margin-top: 15px;
+}
+
 .board-row {
   display: flex;
   justify-content: center;
@@ -114,14 +118,14 @@ h5 {
 }
 
 .refresh-button {
-  background-color: #26adda;
   border: none;
   border-radius: 5px;
-  color: white;
+  background-color: white;
   cursor: pointer;
   font-size: 16px;
-  padding: 10px 20px;
-  margin: 15px 0;
+  width: 35px;
+  padding: 5px;
+  margin-left: 8px;
 }
 
 .refresh-button:hover {
@@ -170,7 +174,25 @@ h5 {
   text-align: center;
 }
 
-@media (max-width: 600px) {
+.component {
+  display: none; /* Hide all components by default */
+}
+  
+.navbar {
+  display: none;
+}
+
+.visible {
+  display: block; /* Show the component when it's visible */
+}
+
+@media (min-width: 769px) { /* Adjust the breakpoint as needed */
+  .component {
+      display: block; /* Show all components on larger screens */
+  }
+}
+
+@media (max-width: 768px) {
   .App-header {
     padding: 15px;
   }
@@ -183,6 +205,29 @@ h5 {
     font-size: 12px;
     margin-left: 6px;
     padding: 6px 12px;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    width: 100%;
+    background-color: #999;
+
+    button {
+      padding: 10px 30px 10px;
+      margin: 0 10px 0;
+      border-color: #282c34;
+      border-width: 5px;
+      border-radius: 5px;
+    }
+  }
+  
+  .navbar button {
+    border: none;
   }
 
   .square {

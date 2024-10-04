@@ -1,0 +1,29 @@
+.letter-search-component {
+    margin: 10px auto;
+    align-items: center;
+    width: 90%;
+    max-width: 1200px;
+}
+
+.letter-square {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    background-color: #a9a9a9;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 18px;
+    color: black;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 18px;
+}
