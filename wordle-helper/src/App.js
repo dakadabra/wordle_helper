@@ -318,8 +318,8 @@ function App() {
                   setCurrentRow={setCurrentRow}
               />
             <div className="navbar">
-              <button onClick={() => setCurrentView('letterfrequency')}>Letter Frequencies</button>
               <button onClick={() => setCurrentView('wordlist')}>Word List</button>
+              <button onClick={() => setCurrentView('letterfrequency')}>Letter Frequencies</button>
               <RefreshButton 
                   onRefresh={() => {
                       setSquares(Array(30).fill({ letter: '', color: SquareColors.GREY }));
