@@ -274,10 +274,19 @@ function App() {
             } else if (color === SquareColors.YELLOW) {
               if (greenSquares.includes(letter)) {
                 // Remove the letter from greenSquares, as we're using it as a counter (a person might have used it as a green guess before, and now moved it to a yellow positon)
-                const index = greenSquares.indexOf(letter);
-                if (index > -1) {
-                  greenSquares[index] = '';
+                const indexInGreens = greenSquares.indexOf(letter);
+                if (indexInGreens > -1) {
+                  greenSquares[indexInGreens] = '';
                 }
+              } else if (yellowSquares.flat().includes(letter)) {
+                yellowSquares.some((yellowLettersAtThisSpot, index) => { // Removes occurence of the letter from yellows if it was part of previous guesses
+                    if (yellowLettersAtThisSpot.includes(letter)) {
+                        yellowLettersAtThisSpot.splice(yellowLettersAtThisSpot.indexOf(letter), 1);
+                        newGreySquares[colIndex].push(letter); // add it to the greys, cause letter won't be there, but don't want to double-count the letter with the yellows
+                        return true; // Stop after removing the letter once
+                    }
+                });
+
               } else {
                 // Add the letter to the right array in newYellowSquares
                 if (!newYellowSquares[colIndex].includes(letter)) {
