@@ -7,7 +7,7 @@ interface WordListProps {
     onWordSelect: (word: string) => void;
 }
   
-const WordList: React.FC<WordListProps> = ({ filteredWords, onWordSelect }) => {
+function WordList({ filteredWords, onWordSelect }: WordListProps) {
     const MAX_ROWS = 20;
     const MAX_COLUMNS = 10;
     const MIN_COLUMNS = 1;

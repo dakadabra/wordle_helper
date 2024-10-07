@@ -13,7 +13,7 @@ interface LetterFrequencyProps {
   setSearchedLetters: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const LetterFrequency: React.FC<LetterFrequencyProps> = ({words, searchedLetters, setSearchedLetters }) => {
+function LetterFrequency({words, searchedLetters, setSearchedLetters }: LetterFrequencyProps) {
   const [letterFrequency, setLetterFrequency] = useState<[string, number][]>([]);
 
   useEffect(() => {
