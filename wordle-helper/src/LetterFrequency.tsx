@@ -35,7 +35,11 @@ function LetterFrequency({words, searchedLetters, setSearchedLetters }: LetterFr
   }, [words]);
 
   const handleLetterClick = (letter: string): void => {
-    setSearchedLetters((prev: string) => prev + letter);
+    if (searchedLetters.includes(letter)) {
+      setSearchedLetters((prev: string) => prev.replace(letter, ''));
+    } else {
+      setSearchedLetters((prev: string) => prev + letter);
+    }
   };
 
   return (
