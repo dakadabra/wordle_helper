@@ -1,3 +1,4 @@
+// Filename - WordList.tsx
 
 import React, { useState, useEffect } from 'react';
 import './WordList.css';

@@ -1,3 +1,5 @@
+// Filename - LetterFrequency.tsx
+
 // Code inspired by https://gist.github.com/iancward/afe148f28c5767d5ced7a275c12816a3
 
 import React, { useState, useEffect } from 'react';
