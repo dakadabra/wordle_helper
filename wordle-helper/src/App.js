@@ -294,7 +294,7 @@ function App() {
         <div className="App">
             <header className="App-header">
               <h1>Wordle Helper</h1>
-              <h5>A tool to help you solve Wordle puzzles, showing a list of possible words as you go.</h5>
+              <h5>A tool to help you solve Wordle puzzles, suggesting a list of possible words as you go.</h5>
               <Instructions />
               <Board 
                   squares={squares} 
