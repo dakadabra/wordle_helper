@@ -96,12 +96,12 @@ function Board({ squares, updateSquareInfo, onEnter, currentRow, setCurrentRow }
   const [rowsFilled, setRowsFilled] = useState(Array(MAX_GUESSES).fill(false));
 
   const handleEnter = (rowIndex) => {
-    onEnter(rowIndex);
     setCurrentRow(rowIndex + 1);
     
     // Use setTimeout to ensure the next row is enabled before focusing
     setTimeout(() => {
-      if (rowIndex < NUM_LETTERS) {
+      onEnter(rowIndex);
+      if (rowIndex < MAX_GUESSES) {
         const nextRow = enterButtonRefs.current[rowIndex].parentNode.nextSibling;
         const firstInput = nextRow.querySelector('input');
         firstInput.focus();
@@ -224,6 +224,16 @@ function App() {
       setFilteredWords(filtered);
       setCurrentView('wordlist');
     }, [searchedLetters, words]);
+    
+    useEffect(() => {
+      const newSquares = [...squares];
+      greenSquares.forEach((letter, index) => {
+        if (letter != "") {
+          newSquares[currentRow * NUM_LETTERS + index] = { letter, color: SquareColors.GREY };
+        }
+      });
+      setSquares(newSquares);
+    }, [greenSquares]);
   
     // Updates the square info with the letter and color of the square
     const updateSquareInfo = (rowIndex, colIndex, letter, color) => {
